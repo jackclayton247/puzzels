@@ -36,15 +36,19 @@ def partition(value, bordering, freebies):
     bordering = bordering[0]
     possible = []
     if value <= 9: #1 digit 
-        if freebies:
+        if freebies and bordering:
+            possible.append([value, "2"])
+        elif freebies:
             possible.append([value, "3"])
         else:
             possible.append([value, "0"])
     if 3 <= value <= 18: #2 digit
         for x in range(1, 10, 1):
             if 0 < value - x <= 9:
-                if freebies:
-                    possible.append(sorted([x, value-x]) + ["2"]) #sorts added list for easier filtering later
+                if freebies and bordering:
+                    possible.append(sorted([x, value-x]) + ["1"]) #sorts added list for easier filtering later
+                elif freebies:
+                    possible.append(sorted([x, value-x]) + ["2"])
                 else:
                     possible.append(sorted([x, value-x]) + ["0"])
     if 5 <= value <= 26: #3 digit
@@ -53,8 +57,10 @@ def partition(value, bordering, freebies):
             if sum1 > 0:
                 for y in range(1, 10, 1):
                     if 0 < sum1 - y <= 9:
-                        if freebies:
-                            possible.append(sorted([x, y, sum1-y]) + ["1"]) #sorts added list for easier filtering later
+                        if freebies and bordering:
+                            possible.append(sorted([x, y, sum1-y]) + ["0"]) #sorts added list for easier filtering later
+                        elif freebies:
+                            possible.append(sorted([x, y, sum1-y]) + ["1"])
                         else:
                             possible.append(sorted([x, y, sum1-y]) + ["0"])
     if bordering == False:
@@ -162,33 +168,43 @@ def get_every_square(base, rotation, length): #finds the coordinate of every squ
             every_square.append([base[0], base[1]+y])
     return every_square
 
-def check(every_square, value, hook_num):
+def check(every_square, value, hook_num): #
     for a in range(14):
+        #print(end_partitions[a])
         temp = []
+        done = False
         for affected_square in numbers[a][5]:
-            if affected_square in every_square:
+            if affected_square in every_square and done == False:
+                done = True
+                print(numbers[a][0])
                 for b in range(len(numbers[a][4])):
-                        partition = numbers[a][4][b]
-                        for c in range(len(partition)-1):
-                            partition_value = partition[c]
-                            if partition_value == value:
-                                temp.append(partition)
-                            else:
-                                if partition_value in ["1", "2", "3"] and c == len(partition)-1:
-                                    numbers[a][4][b][len(numbers[a][4][b])-1] = str(int(numbers[a][4][b][len(numbers[a][4][b])-1]) - 1)
-                                    new = partition
-                                    new[len(partition)-1] = "0"
-                                    temp.append(new)
-        #find conjugate of temp
-        list(temp for temp, _ in itertools.groupby(temp))                      
+                    #print(numbers[a][4][b], b)
+                    partition = numbers[a][4][b]
+                    #print(partition)
+                    #if partition == [7, 8, '0']:
+                        #print("poo")
+                    if value in partition:
+                        temp.append(partition)
+                    elif partition[-1] in ["1", "2", "3"]:
+                        numbers[a][4][b][-1] = str(int(numbers[a][4][b][-1]) - 1)
+                        temp.append(partition)
+                            
+
+        #find conjugate of temp                     
+        for i in range(len(temp)):
+            temp[i].pop()
+            temp[i].append("0")
+            #pass
         if temp != []:
+            #print(temp)
             conjugate = end_partitions[a]      
             for item in temp:
                 try:
                     conjugate.remove(item)
                 except:
-                    pass   
-            print(numbers[a][0],a, conjugate)            
+                    pass
+            #print(conjugate)
+            #print(numbers[a][0],a, conjugate)            
         #remove from end_partitions
                                     
 

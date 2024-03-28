@@ -1,7 +1,8 @@
 from numba import jit
+import itertools
 
 numbers = {}
-numbers[0] = [[18],[1, 8],[True], [True], [], [[0, 8],[1, 7],[2, 8]]] #value, coord, absolute?,bordering?, list, affected squares
+numbers[0] = [[18],[1, 8],[True], [True], [], [[0, 8],[1, 7],[2, 8]]] #value, coord, absolute?,bordering?, list, affected squares, possible partitions
 numbers[1] = [[5],[1, 4],[False], [False], [], [[0, 4],[1, 3],[1, 5],[2, 4]]]
 numbers[2] = [[9],[1, 2],[False], [False], [], [[0, 2],[1, 1],[1, 3],[2, 2]]]
 numbers[3] = [[9],[2, 6],[True], [False], [], [[1, 6],[2, 5],[2, 7],[3, 6]]]
@@ -30,23 +31,32 @@ def dupe(possible):
     return temp
 
 
-def partition(value, bordering):
+def partition(value, bordering, freebies):
     value = value[0]
     bordering = bordering[0]
     possible = []
     if value <= 9: #1 digit 
-        possible.append([value])
+        if freebies:
+            possible.append([value, "3"])
+        else:
+            possible.append([value, "0"])
     if 3 <= value <= 18: #2 digit
-        for x in range(1, 9, 1):
+        for x in range(1, 10, 1):
             if 0 < value - x <= 9:
-                possible.append(sorted([x, value-x])) #sorts added list for easier filtering later
+                if freebies:
+                    possible.append(sorted([x, value-x]) + ["2"]) #sorts added list for easier filtering later
+                else:
+                    possible.append(sorted([x, value-x]) + ["0"])
     if 5 <= value <= 26: #3 digit
         for x in range(1, 10, 1):
             sum1 = value - x
             if sum1 > 0:
                 for y in range(1, 10, 1):
                     if 0 < sum1 - y <= 9:
-                        possible.append(sorted([x, y, sum1-y])) #sorts added list for easier filtering later
+                        if freebies:
+                            possible.append(sorted([x, y, sum1-y]) + ["1"]) #sorts added list for easier filtering later
+                        else:
+                            possible.append(sorted([x, y, sum1-y]) + ["0"])
     if bordering == False:
         if 8 <= value <= 34: #4 digits
             for x in range(1, 10, 1):
@@ -57,7 +67,7 @@ def partition(value, bordering):
                         if sum2 > 0:
                             for z in range(1, 10, 1):
                                 if 0 < (sum2 - z) <= 9:
-                                    possible.append(sorted([x, y, z, sum2-z])) #sorts added list for easier filtering later
+                                    possible.append(sorted([x, y, z, sum2-z]) + ["0"]) #sorts added list for easier filtering later
     temp = []
     for item in possible: #filters duplicates
         if item not in temp:
@@ -66,7 +76,7 @@ def partition(value, bordering):
     return dupe(possible)
 
 for i in range(14):
-    numbers[4] = (partition(numbers[i][0], numbers[i][3]))
+    numbers[i][4] = (partition(numbers[i][0], numbers[i][3], True))
 
 
 
@@ -152,24 +162,77 @@ def get_every_square(base, rotation, length): #finds the coordinate of every squ
             every_square.append([base[0], base[1]+y])
     return every_square
 
-def affected_values():
-    pass
+def check(every_square, value, hook_num):
+    for a in range(14):
+        temp = []
+        for affected_square in numbers[a][5]:
+            if affected_square in every_square:
+                for b in range(len(numbers[a][4])):
+                        partition = numbers[a][4][b]
+                        for c in range(len(partition)-1):
+                            partition_value = partition[c]
+                            if partition_value == value:
+                                temp.append(partition)
+                            else:
+                                if partition_value in ["1", "2", "3"] and c == len(partition)-1:
+                                    numbers[a][4][b][len(numbers[a][4][b])-1] = str(int(numbers[a][4][b][len(numbers[a][4][b])-1]) - 1)
+                                    new = partition
+                                    new[len(partition)-1] = "0"
+                                    temp.append(new)
+        #find conjugate of temp
+        list(temp for temp, _ in itertools.groupby(temp))                      
+        if temp != []:
+            conjugate = end_partitions[a]      
+            for item in temp:
+                try:
+                    conjugate.remove(item)
+                except:
+                    pass   
+            print(numbers[a][0],a, conjugate)            
+        #remove from end_partitions
+                                    
+
+
+
+
+
+end_partitions = {}
+end_partitions[0] = []
+end_partitions[1] = []
+end_partitions[2] = []
+end_partitions[3] = []
+end_partitions[4] = []
+end_partitions[5] = []
+end_partitions[6] = []
+end_partitions[7] = []
+end_partitions[8] = []
+end_partitions[9] = []
+end_partitions[10] = []
+end_partitions[11] = []
+end_partitions[12] = []
+end_partitions[13] = []
+
+for i in range(14):
+    end_partitions[i] = partition(numbers[i][0], numbers[i][3], False)
+
+
 
 class nine():
     def __init__(self) -> None:
         self.length = 9 #how wide and tall the hook is
         self.rotation = 0
-        self.value = "null" #from 3 ---> 9
+        self.value = hook_values[0] #from 3 ---> 9
         self.base = get_base(self.rotation) #the coords of the corner of the hook
         constrict(self.rotation)
         self.every_square = get_every_square(self.base, self.rotation, self.length)
-        eight()
+        check(self.every_square, self.value, self.length)
+        #eight()
 
 class eight():
     def __init__(self) -> None:
         self.length = 8 #how wide and tall the hook is
         self.rotation = 0
-        self.value = "null" #the number assigned to this hook
+        self.value = hook_values[1] #the number assigned to this hook
         self.base = get_base(self.rotation) #the coords of the corner of the hook
         constrict(self.rotation)
         self.every_square = get_every_square(self.base, self.rotation, self.length)
@@ -179,7 +242,7 @@ class seven():
     def __init__(self) -> None:
         self.length = 7 #how wide and tall the hook is
         self.rotation = 0
-        self.value = "null" #the number assigned to this hook
+        self.value = hook_values[2] #the number assigned to this hook
         self.base = get_base(self.rotation) #the coords of the corner of the hook
         constrict(self.rotation)
         self.every_square = get_every_square(self.base, self.rotation, self.length)
@@ -189,7 +252,7 @@ class six():
     def __init__(self) -> None:
         self.length = 6 #how wide and tall the hook is
         self.rotation = 0
-        self.value = "null" #the number assigned to this hook
+        self.value = hook_values[3] #the number assigned to this hook
         self.base = get_base(self.rotation) #the coords of the corner of the hook
         constrict(self.rotation)
         self.every_square = get_every_square(self.base, self.rotation, self.length)
@@ -199,7 +262,7 @@ class five():
     def __init__(self) -> None:
         self.length = 5 #how wide and tall the hook is
         self.rotation = 0
-        self.value = "null" #the number assigned to this hook
+        self.value = hook_values[4] #the number assigned to this hook
         self.base = get_base(self.rotation) #the coords of the corner of the hook
         constrict(self.rotation)
         self.every_square = get_every_square(self.base, self.rotation, self.length)
@@ -209,7 +272,7 @@ class four():
     def __init__(self) -> None:
         self.length = 4 #how wide and tall the hook is
         self.rotation = 0
-        self.value = "null" #the number assigned to this hook
+        self.value = hook_values[5] #the number assigned to this hook
         self.base = get_base(self.rotation) #the coords of the corner of the hook
         constrict(self.rotation)
         self.every_square = get_every_square(self.base, self.rotation, self.length)
@@ -219,7 +282,7 @@ class three():
     def __init__(self) -> None:
         self.length = 3 #how wide and tall the hook is
         self.rotation = 0
-        self.value = "null" #the number assigned to this hook
+        self.value = hook_values[6] #the number assigned to this hook
         self.base = get_base(self.rotation) #the coords of the corner of the hook
         constrict(self.rotation)
         self.every_square = get_every_square(self.base, self.rotation, self.length)
@@ -259,7 +322,10 @@ def combo(): #rearange list for each order (!)
                                             if f not in [a, b, c, d, e]:
                                                 for g in range(3, 10, 1):
                                                     if g not in [a, b, c, d, e, f]:
-                                                        print(a, b, c, d, e, f, g)
+                                                        hook_values = [a, b, c, d, e, f, g]
 
 #combo()
-nine()                                                       
+hook_values = [9, 8, 7, 6, 5, 4, 3]
+nine()
+
+#print(partition([9], [False]))

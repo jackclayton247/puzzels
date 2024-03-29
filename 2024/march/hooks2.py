@@ -1,5 +1,5 @@
 from numba import jit
-import itertools
+
 
 numbers = {}
 numbers[0] = [[18],[1, 8],[True], [True], [], [[0, 8],[1, 7],[2, 8]]] #value, coord, absolute?,bordering?, list, affected squares, possible partitions
@@ -29,7 +29,6 @@ def dupe(possible):
                 if item.count(i) > 2:  #removes lists with more than 2 of a single number
                     temp.remove(item)
     return temp
-
 
 def partition(value, bordering, freebies):
     value = value[0]
@@ -122,13 +121,13 @@ def constrict(rotation):  #deletes row and columb (removes an l-shape) based on 
         current_grid[1][0] += 1
 
 def get_base(rotation): #finds the coordinate of the corner of the "hook"
-    if rotation == 0:
+    if rotation == "0":
         base = [current_grid[0][0],current_grid[1][0]]
-    if rotation == 1:
+    if rotation == "1":
         base = [current_grid[0][0],current_grid[1][1]]
-    if rotation == 2:
+    if rotation == "2":
         base = [current_grid[0][1],current_grid[1][1]]
-    if rotation == 3:
+    if rotation == "3":
         base = [current_grid[0][1],current_grid[1][0]]
     return base
 
@@ -173,10 +172,11 @@ def check(every_square, value, hook_num): #
         #print(end_partitions[a])
         temp = []
         done = False
+        conjugate = []
         for affected_square in numbers[a][5]:
             if affected_square in every_square and done == False:
                 done = True
-                print(numbers[a][0])
+                #print(numbers[a][0])
                 for b in range(len(numbers[a][4])):
                     #print(numbers[a][4][b], b)
                     partition = numbers[a][4][b]
@@ -203,10 +203,28 @@ def check(every_square, value, hook_num): #
                     conjugate.remove(item)
                 except:
                     pass
-            #print(conjugate)
+        holder = end_partitions[a]
+        for item in conjugate:
+            try:
+                holder.remove(item)
+            except:
+                pass
+        end_partitions[a] = holder
+
+        
             #print(numbers[a][0],a, conjugate)            
         #remove from end_partitions
                                     
+def to_be_or_not_to_be():
+    for i in range(13):
+        if end_partitions[i] == []:
+            return False
+    return True
+
+def reset():
+    for i in range(14):
+        numbers[i][4] = (partition(numbers[i][0], numbers[i][3], True))
+        end_partitions[i] = partition(numbers[i][0], numbers[i][3], False)
 
 
 
@@ -235,96 +253,107 @@ for i in range(14):
 
 class nine():
     def __init__(self) -> None:
+        pass
+    def poo(self):
         self.length = 9 #how wide and tall the hook is
-        self.rotation = 0
+        self.rotation = rotation_values[0]
         self.value = hook_values[0] #from 3 ---> 9
         self.base = get_base(self.rotation) #the coords of the corner of the hook
         constrict(self.rotation)
         self.every_square = get_every_square(self.base, self.rotation, self.length)
         check(self.every_square, self.value, self.length)
-        #eight()
+        eight()
 
 class eight():
     def __init__(self) -> None:
         self.length = 8 #how wide and tall the hook is
-        self.rotation = 0
+        self.rotation = rotation_values[1]
         self.value = hook_values[1] #the number assigned to this hook
         self.base = get_base(self.rotation) #the coords of the corner of the hook
         constrict(self.rotation)
         self.every_square = get_every_square(self.base, self.rotation, self.length)
+        check(self.every_square, self.value, self.length)
         seven()
 
 class seven():
     def __init__(self) -> None:
         self.length = 7 #how wide and tall the hook is
-        self.rotation = 0
+        self.rotation = rotation_values[2]
         self.value = hook_values[2] #the number assigned to this hook
         self.base = get_base(self.rotation) #the coords of the corner of the hook
         constrict(self.rotation)
         self.every_square = get_every_square(self.base, self.rotation, self.length)
+        check(self.every_square, self.value, self.length)
         six()
 
 class six():
     def __init__(self) -> None:
         self.length = 6 #how wide and tall the hook is
-        self.rotation = 0
+        self.rotation = rotation_values[3]
         self.value = hook_values[3] #the number assigned to this hook
         self.base = get_base(self.rotation) #the coords of the corner of the hook
         constrict(self.rotation)
         self.every_square = get_every_square(self.base, self.rotation, self.length)
+        check(self.every_square, self.value, self.length)
         five()
 
 class five():
     def __init__(self) -> None:
         self.length = 5 #how wide and tall the hook is
-        self.rotation = 0
+        self.rotation = rotation_values[4]
         self.value = hook_values[4] #the number assigned to this hook
         self.base = get_base(self.rotation) #the coords of the corner of the hook
         constrict(self.rotation)
         self.every_square = get_every_square(self.base, self.rotation, self.length)
+        check(self.every_square, self.value, self.length)
         four()
 
 class four():
     def __init__(self) -> None:
         self.length = 4 #how wide and tall the hook is
-        self.rotation = 0
+        self.rotation = rotation_values[5]
         self.value = hook_values[5] #the number assigned to this hook
         self.base = get_base(self.rotation) #the coords of the corner of the hook
         constrict(self.rotation)
         self.every_square = get_every_square(self.base, self.rotation, self.length)
+        check(self.every_square, self.value, self.length)
         three()
 
 class three():
     def __init__(self) -> None:
         self.length = 3 #how wide and tall the hook is
-        self.rotation = 0
+        self.rotation = rotation_values[6]
         self.value = hook_values[6] #the number assigned to this hook
         self.base = get_base(self.rotation) #the coords of the corner of the hook
         constrict(self.rotation)
         self.every_square = get_every_square(self.base, self.rotation, self.length)
+        check(self.every_square, self.value, self.length)
         two()
 
 class two():
     def __init__(self) -> None:
         self.length = 2 #how wide and tall the hook is
-        self.rotation = 0
+        self.rotation = rotation_values[7]
         self.value = 2 #the number assigned to this hook
         self.base = get_base(self.rotation) #the coords of the corner of the hook
         constrict(self.rotation)
         self.every_square = get_every_square(self.base, self.rotation, self.length)
+        check(self.every_square, self.value, self.length)
         one()
 
 class one():
     def __init__(self) -> None:
+        self.rotation = "0"
         self.length = 1 #how wide and tall the hook is
         self.value = 1
-        self.base = "null"
-        print("valid")
+        self.base = get_base(self.rotation)
+        self.every_square = self.base
+        check(self.every_square, self.value, self.length)
+        if to_be_or_not_to_be():
+            print(rotation_values, hook_values)
+        reset()
 
-for x in range(65536000):
-    pass
-
-def combo(): #rearange list for each order (!)
+for x in range(65536): #rearange list for each order (!)
     for a in range(3, 10, 1):
         for b in range(3, 10, 1):
             if a not in [b]:
@@ -339,9 +368,11 @@ def combo(): #rearange list for each order (!)
                                                 for g in range(3, 10, 1):
                                                     if g not in [a, b, c, d, e, f]:
                                                         hook_values = [a, b, c, d, e, f, g]
-
-#combo()
-hook_values = [9, 8, 7, 6, 5, 4, 3]
-nine()
+                                                        base4 = base_10_to_4(x)
+                                                        rotation_values = [base4[7], base4[6], base4[5], base4[4], base4[3], base4[2], base4[1], base4[0]]
+                                                        n = nine()
+                                                        n.poo()
+    print(x)
+                                                        
 
 #print(partition([9], [False]))

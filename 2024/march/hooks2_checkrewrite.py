@@ -27,23 +27,24 @@ def base_10_to_4(denary):
         base_four = "0" + base_four #adds zeros until there are 8 bits
     return base_four
 
-current_grid = [[0, 8], [0, 8]]  #[[x-axis][y-axis]]
+#current_grid = [[0, 8], [0, 8]]  #[[x-axis][y-axis]]
 
-def constrict(rotation):  #deletes row and columb (removes an l-shape) based on rotation
+def constrict(rotation, current_grid):  #deletes row and columb (removes an l-shape) based on rotation
     if rotation == "0":
         current_grid[0][0] += 1
         current_grid[1][0] += 1
-    if rotation == "1":
+    elif rotation == "1":
         current_grid[0][0] += 1
         current_grid[1][1] -= 1
-    if rotation == "2":
+    elif rotation == "2":
         current_grid[0][1] -= 1
         current_grid[1][1] -= 1
-    if rotation == "3":
+    else:
         current_grid[0][1] -= 1
         current_grid[1][0] += 1
+    return current_grid
 
-def get_base(rotation): #finds the coordinate of the corner of the "hook"
+def get_base(rotation, current_grid): #finds the coordinate of the corner of the "hook"
     if rotation == "0":
         base = [current_grid[0][0],current_grid[1][0]]
     elif rotation == "1":
@@ -56,13 +57,12 @@ def get_base(rotation): #finds the coordinate of the corner of the "hook"
 
 def get_every_square(base, rotation, length): #finds the coordinate of every square in the hook
     every_square = []
-    if rotation == 0:
+    if rotation == "0":
         for x in range(0, length, 1):
-            print(x)
             every_square.append([base[0]+x, base[1]])
         for y in range(length):
             every_square.append([base[0], base[1]+y])
-    elif rotation == 1:
+    elif rotation == "1":
         for x in range(length):
             if x == 0:
                 pass
@@ -70,7 +70,7 @@ def get_every_square(base, rotation, length): #finds the coordinate of every squ
                 every_square.append([base[0]+x, base[1]])
         for y in range(length):
             every_square.append([base[0], base[1]-y])
-    elif rotation == 2:
+    elif rotation == "2":
         for x in range(length):
             if x == 0:
                 pass
@@ -88,48 +88,44 @@ def get_every_square(base, rotation, length): #finds the coordinate of every squ
             every_square.append([base[0], base[1]+y])
     return every_square
 
-def check(every_square, value, hook_num): #
-    print(value)
-    for a in range(14):
-        #print(end_partitions[a])
-        items_to_keep = []
-        done = False
-        conjugate = []
-        for affected_square in numbers[a][5]:
-            if affected_square in every_square and done == False:
-                done = True
-                for b in range(len(numbers[a][4])):
-                    partition = numbers[a][4][b]
-                    if value in partition:
-                        items_to_keep.append(partition)
-                    elif partition[-1] in ["1", "2", "3"]:
-                        numbers[a][4][b][-1] = str(int(numbers[a][4][b][-1]) - 1)
-                        items_to_keep.append(partition)
-        #find conjugate of items_to_keep                     
-        for i in range(len(items_to_keep)):
-            items_to_keep[i].pop()
-            items_to_keep[i].append("0")
-            #pass
-        if items_to_keep != []:
-            #print(items_to_keep)
-            conjugate = end_partitions[a]      
-            for item in items_to_keep:
-                try:
-                    conjugate.remove(item)
-                except:
-                    pass
-        if items_to_keep != []:
-            print(items_to_keep)
-            print(numbers[a][4])
-            print(conjugate, "conjugate")
-        holder = end_partitions[a]
-        for item in conjugate:
+def check(every_square, value, poo): #
+    clashing_values = []
+    for i in range(14): #finds all the values that could have a number in the hook
+        affected_values = numbers[i][5]
+        for item in affected_values:
+            if item in every_square:
+                clashing_values.append(i)
+    for number in clashing_values:
+        save = []
+        partitions = numbers[number][4]
+        for x in range (len(partitions)):
+            partition = partitions[x]
+            #can fit
+            if value in partition:
+                save.append(partition)
+            elif partition[-1] in ["1", "2", "3"]:
+                save.append(partition)
+                temp = numbers[number]
+                temp[4][x][-1] = str(int(temp[4][x][-1])-1)
+                numbers[number] = temp
+        for i in range(len(save)):
+            save[i].pop()
+            save[i].append("0")
+        remove = end_partitions[number]
+        for item in save:
+            try:
+                remove.remove(item)
+            except:
+                pass
+        holder = end_partitions[number]
+        for item in remove:
             holder.remove(item)
-        end_partitions[a] = holder
-
+        end_partitions[number] = holder
         
-            #print(numbers[a][0],a, conjugate)            
-        #remove from end_partitions
+
+                
+
+
                                     
 def to_be_or_not_to_be():
     for i in range(13):
@@ -193,114 +189,115 @@ end_partitions[12] = []
 end_partitions[13] = []
 
 class nine():
-    def __init__(self):
+    def __init__(self, current_grid):
         self.length = 9 #how wide and tall the hook is
         self.rotation = rotation_values[0]
         self.value = hook_values[0] #from 3 ---> 9
-        self.base = get_base(self.rotation) #the coords of the corner of the hook
-        constrict(self.rotation)
+        self.base = get_base(self.rotation, current_grid) #the coords of the corner of the hook
+        self.current_grid = constrict(self.rotation, current_grid)
         self.every_square = get_every_square(self.base, self.rotation, self.length)
         check(self.every_square, self.value, self.length)
         if not Break():
-            eight()
+            eight(self.current_grid)
 
 class eight():
-    def __init__(self):
+    def __init__(self, current_grid):
         self.length = 8 #how wide and tall the hook is
         self.rotation = rotation_values[1]
         self.value = hook_values[1] #the number assigned to this hook
-        self.base = get_base(self.rotation) #the coords of the corner of the hook
-        constrict(self.rotation)
+        self.base = get_base(self.rotation, current_grid) #the coords of the corner of the hook
+        self.current_grid = constrict(self.rotation, current_grid)
         self.every_square = get_every_square(self.base, self.rotation, self.length)
         check(self.every_square, self.value, self.length)
-        #if not Break():
-            #seven()
+        if not Break():
+            seven(self.current_grid)
 
 class seven():
-    def __init__(self):
+    def __init__(self, current_grid):
         self.length = 7 #how wide and tall the hook is
         self.rotation = rotation_values[2]
         self.value = hook_values[2] #the number assigned to this hook
-        self.base = get_base(self.rotation) #the coords of the corner of the hook
-        constrict(self.rotation)
+        self.base = get_base(self.rotation, current_grid) #the coords of the corner of the hook
+        self.current_grid = constrict(self.rotation, current_grid)
         self.every_square = get_every_square(self.base, self.rotation, self.length)
         check(self.every_square, self.value, self.length)
         if not Break():
-            six()
+            six(self.current_grid)
 
 class six():
-    def __init__(self):
+    def __init__(self, current_grid):
         self.length = 6 #how wide and tall the hook is
         self.rotation = rotation_values[3]
         self.value = hook_values[3] #the number assigned to this hook
-        self.base = get_base(self.rotation) #the coords of the corner of the hook
-        constrict(self.rotation)
+        self.base = get_base(self.rotation, current_grid) #the coords of the corner of the hook
+        self.current_grid = constrict(self.rotation, current_grid)
         self.every_square = get_every_square(self.base, self.rotation, self.length)
         check(self.every_square, self.value, self.length)
         if not Break():
-            five()
+            five(self.current_grid)
 
 class five():
-    def __init__(self):
+    def __init__(self, current_grid):
         self.length = 5 #how wide and tall the hook is
         self.rotation = rotation_values[4]
         self.value = hook_values[4] #the number assigned to this hook
-        self.base = get_base(self.rotation) #the coords of the corner of the hook
-        constrict(self.rotation)
+        self.base = get_base(self.rotation, current_grid) #the coords of the corner of the hook
+        self.current_grid = constrict(self.rotation, current_grid)
         self.every_square = get_every_square(self.base, self.rotation, self.length)
         check(self.every_square, self.value, self.length)
         if not Break():
-            four()
+            four(self.current_grid)
 
 class four():
-    def __init__(self):
+    def __init__(self, current_grid):
         self.length = 4 #how wide and tall the hook is
         self.rotation = rotation_values[5]
         self.value = hook_values[5] #the number assigned to this hook
-        self.base = get_base(self.rotation) #the coords of the corner of the hook
-        constrict(self.rotation)
+        self.base = get_base(self.rotation, current_grid) #the coords of the corner of the hook
+        self.current_grid = constrict(self.rotation, current_grid)
         self.every_square = get_every_square(self.base, self.rotation, self.length)
         check(self.every_square, self.value, self.length)
         if not Break():
-            three()
+            three(self.current_grid)
 
 class three():
-    def __init__(self):
+    def __init__(self, current_grid):
         self.length = 3 #how wide and tall the hook is
         self.rotation = rotation_values[6]
         self.value = hook_values[6] #the number assigned to this hook
-        self.base = get_base(self.rotation) #the coords of the corner of the hook
-        constrict(self.rotation)
+        self.base = get_base(self.rotation, current_grid) #the coords of the corner of the hook
+        self.current_grid = constrict(self.rotation, current_grid)
         self.every_square = get_every_square(self.base, self.rotation, self.length)
         check(self.every_square, self.value, self.length)
         if not Break():
-            two()
+            two(self.current_grid)
 
 class two():
-    def __init__(self):
+    def __init__(self, current_grid):
         self.length = 2 #how wide and tall the hook is
         self.rotation = rotation_values[7]
         self.value = 2 #the number assigned to this hook
-        self.base = get_base(self.rotation) #the coords of the corner of the hook
-        constrict(self.rotation)
+        self.base = get_base(self.rotation, current_grid) #the coords of the corner of the hook
+        self.current_grid = constrict(self.rotation, current_grid)
         self.every_square = get_every_square(self.base, self.rotation, self.length)
         check(self.every_square, self.value, self.length)
         if not Break():
-            one()
+            one(self.current_grid)
 
 class one():
-    def __init__(self):
+    def __init__(self, current_grid):
         self.rotation = "0"
         self.length = 1 #how wide and tall the hook is
         self.value = 1
-        self.base = get_base(self.rotation)
+        self.base = get_base(self.rotation, current_grid)
         self.every_square = self.base
         check(self.every_square, self.value, self.length)
         if to_be_or_not_to_be():
             print(rotation_values, hook_values)
+            exit(1)
             
-'''
-for x in range(65536): #rearange list for each order (!)
+
+for x in range(5500, 65537, 1): #rearange list for each order (!)
     for a in range(3, 10, 1):
         for b in range(3, 10, 1):
             if a not in [b]:
@@ -314,16 +311,11 @@ for x in range(65536): #rearange list for each order (!)
                                             if f not in [a, b, c, d, e]:
                                                 for g in range(3, 10, 1):
                                                     if g not in [a, b, c, d, e, f]:
-                                                        if poo:
-                                                            reset()
-                                                            hook_values = [a, b, c, d, e, f, g]
-                                                            base4 = base_10_to_4(x)
-                                                            rotation_values = [base4[7], base4[6], base4[5], base4[4], base4[3], base4[2], base4[1], base4[0]]
-                                                            nine()
-'''                                                       
-rotation_values = ['1', '1', '1', '0', '0', '0', '0', '0']
-hook_values = [3, 7, 4, 5, 6, 8, 9]
-reset()
-nine()                                          
-#for x in range(14):
-    #print(end_partitions[x])
+                                                        reset()
+                                                        hook_values = [a, b, c, d, e, f, g]
+                                                        base4 = base_10_to_4(x)
+                                                        rotation_values = [base4[7], base4[6], base4[5], base4[4], base4[3], base4[2], base4[1], base4[0]]
+                                                        nine([[0, 8], [0, 8]])
+    print(x)
+                                                    
+                                        

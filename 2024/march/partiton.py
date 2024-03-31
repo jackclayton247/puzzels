@@ -62,4 +62,4 @@ def partition(value, bordering, freebies):
     possible = temp
     return dupe(possible)
 
-print(partition([15], [True], True))
+print(partition([22], [True], True))

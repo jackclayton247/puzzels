@@ -27,8 +27,6 @@ def base_10_to_4(denary):
         base_four = "0" + base_four #adds zeros until there are 8 bits
     return base_four
 
-#current_grid = [[0, 8], [0, 8]]  #[[x-axis][y-axis]]
-
 def constrict(rotation, current_grid):  #deletes row and columb (removes an l-shape) based on rotation
     if rotation == "0":
         current_grid[0][0] += 1
@@ -87,48 +85,84 @@ def get_every_square(base, rotation, length): #finds the coordinate of every squ
         for y in range(length):
             every_square.append([base[0], base[1]+y])
     return every_square
+def convert_to_list_list(List):
+    copy = list(set(List[:]))
+    new = []
+    doubles = []
+    for i in range(len(List)):
+        focus = List[i]
+        List[i] = "poo"
+        if focus in List:
+            doubles.append(focus)
+    for item in copy:
+        if item in doubles:
+            new.append([item, 2])
+        else:
+            new.append([item, 1])
+    return new
+            
 
-def check(every_square, value, poo): #
+def check(every_square, value, poo):    #
     clashing_values = []
     for i in range(14): #finds all the values that could have a number in the hook
-        affected_values = numbers[i][5]
+        affected_values = numbers[i][5][:]
         for item in affected_values:
-            if item in every_square:
+            if item in every_square: #not working
                 clashing_values.append(i)
+    clashing_values = convert_to_list_list(clashing_values)
+    #print(clashing_values)
+    #convert clashing numbers into lists 
     for number in clashing_values:
         save = []
-        partitions = numbers[number][4]
+        partitions = numbers[number[0]][4][:]
+        #print(partitions)
         for x in range (len(partitions)):
-            partition = partitions[x]
+            partition = partitions[x][:]
             #can fit
-            if value in partition:
-                save.append(partition)
-            elif partition[-1] in ["1", "2", "3"]:
-                save.append(partition)
-                temp = numbers[number]
-                temp[4][x][-1] = str(int(temp[4][x][-1])-1)
-                numbers[number] = temp
+            #print(numbers[number][0], partitions)
+            if number[1] == 1:
+                if value in partition:
+                    save.append(partition)
+                elif partition[-1] in ["1", "2", "3"]:
+                    save.append(partition)
+                    temp = numbers[number[0]]
+                    temp[4][x][-1] = str(int(temp[4][x][-1])-1)
+                    numbers[number[0]] = temp
+            elif number[1] == 2:
+                if partition.count(value) == 2:
+                    save.append(partition)
+                elif partition.count(value) == 1 and partition[-1] in ["1", "2", "3"]:
+                    save.append(partition)
+                    temp = numbers[number[0]]
+                    temp[4][x][-1] = str(int(temp[4][x][-1])-1)
+                    numbers[number[0]] = temp
+                elif partition[-1] in ["2", "3"]:
+                    save.append(partition)
+                    temp = numbers[number[0]]
+                    temp[4][x][-1] = str(int(temp[4][x][-1])-2)
+                    numbers[number[0]] = temp
         for i in range(len(save)):
             save[i].pop()
             save[i].append("0")
-        remove = end_partitions[number]
+        remove = end_partitions[number[0]][:]
+        #print(numbers[number][0], remove)
+        #print("-------------")
         for item in save:
             try:
                 remove.remove(item)
             except:
-                pass
-        holder = end_partitions[number]
+                pass #working
+        #print(numbers[number][0], remove)
+        #print("-------------")
+        #print(holder)
         for item in remove:
-            holder.remove(item)
-        end_partitions[number] = holder
-        
-
-                
-
-
+            end_partitions[number[0]].remove(item)
+        #print(number, end_partitions[number])
+        #print("---------")
+    #print("--------------------------------------------------------------")
                                     
 def to_be_or_not_to_be():
-    for i in range(13):
+    for i in range(14):
         if end_partitions[i] == []:
             return False
     return True
@@ -152,8 +186,8 @@ def reset():
     end_partitions[13] = [[6, 9, '0'], [7, 8, '0'], [1, 5, 9, '0'], [1, 6, 8, '0'], [1, 7, 7, '0'], [2, 4, 9, '0'], [2, 5, 8, '0'], [2, 6, 7, '0'], [3, 3, 9, '0'], [3, 4, 8, '0'], [3, 5, 7, '0'], [3, 6, 6, '0'], [4, 4, 7, '0'], [4, 5, 6, '0']]
     ########
     numbers[0][4] = [[9, 9, '1'], [1, 8, 9, '0'], [2, 7, 9, '0'], [2, 8, 8, '0'], [3, 6, 9, '0'], [3, 7, 8, '0'], [4, 5, 9, '0'], [4, 6, 8, '0'], [4, 7, 7, '0'], [5, 5, 8, '0'], [5, 6, 7, '0']]
-    numbers[2][4] = [[5, '3'], [1, 4, '2'], [2, 3, '2'], [1, 2, 2, '1']]
-    numbers[1][4] = [[9, '3'], [1, 8, '2'], [2, 7, '2'], [3, 6, '2'], [4, 5, '2'], [1, 2, 6, '1'], [1, 3, 5, '1'], [1, 4, 4, '1'], [2, 2, 5, '1'], [2, 3, 4, '1'], [1, 2, 2, 4, '0'], [1, 2, 3, 3, '0']]
+    numbers[1][4] = [[5, '3'], [1, 4, '2'], [2, 3, '2'], [1, 2, 2, '1']]
+    numbers[2][4] = [[9, '3'], [1, 8, '2'], [2, 7, '2'], [3, 6, '2'], [4, 5, '2'], [1, 2, 6, '1'], [1, 3, 5, '1'], [1, 4, 4, '1'], [2, 2, 5, '1'], [2, 3, 4, '1'], [1, 2, 2, 4, '0'], [1, 2, 3, 3, '0']]
     numbers[3][4] = [[9, '3'], [1, 8, '2'], [2, 7, '2'], [3, 6, '2'], [4, 5, '2'], [1, 2, 6, '1'], [1, 3, 5, '1'], [1, 4, 4, '1'], [2, 2, 5, '1'], [2, 3, 4, '1'], [1, 2, 2, 4, '0'], [1, 2, 3, 3, '0']]
     numbers[4][4] = [[4, 9, 9, '0'], [5, 8, 9, '0'], [6, 7, 9, '0'], [6, 8, 8, '0'], [7, 7, 8, '0']]
     numbers[5][4] = [[2, 9, '2'], [3, 8, '2'], [4, 7, '2'], [5, 6, '2'], [1, 2, 8, '1'], [1, 3, 7, '1'], [1, 4, 6, '1'], [1, 5, 5, '1'], [2, 2, 7, '1'], [2, 3, 6, '1'], [2, 4, 5, '1'], [3, 3, 5, '1'], [3, 4, 4, '1'], [1, 2, 2, 6, '0'], [1, 2, 3, 5, '0'], [1, 2, 4, 4, '0'], [1, 3, 3, 4, '0'], [2, 2, 3, 4, '0']]
@@ -169,7 +203,7 @@ def reset():
 def Break():
     for i in range(14):
         if end_partitions[i] == []:
-            return True
+            return True     
     return False
 
 end_partitions = {}
@@ -290,14 +324,17 @@ class one():
         self.length = 1 #how wide and tall the hook is
         self.value = 1
         self.base = get_base(self.rotation, current_grid)
-        self.every_square = self.base
+        self.every_square = [self.base]
         check(self.every_square, self.value, self.length)
+        #for x in range(14):
+            #print(end_partitions[x])
         if to_be_or_not_to_be():
             print(rotation_values, hook_values)
-            exit(1)
-            
+            exit()
 
-for x in range(5500, 65537, 1): #rearange list for each order (!)
+for x in range(0, 65536, 1):
+#for x in range(65536, -1, -1): #rearange list for each order (!)
+    print(x)
     for a in range(3, 10, 1):
         for b in range(3, 10, 1):
             if a not in [b]:
@@ -316,6 +353,9 @@ for x in range(5500, 65537, 1): #rearange list for each order (!)
                                                         base4 = base_10_to_4(x)
                                                         rotation_values = [base4[7], base4[6], base4[5], base4[4], base4[3], base4[2], base4[1], base4[0]]
                                                         nine([[0, 8], [0, 8]])
-    print(x)
-                                                    
-                                        
+    
+
+#reset()
+#hook_values = [9, 7, 8, 6, 5, 4, 3]
+#rotation_values = ['2', '2', '3', '0', '1', '2', '0', '0']
+#nine([[0, 8], [0, 8]])

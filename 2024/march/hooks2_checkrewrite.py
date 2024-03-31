@@ -17,6 +17,8 @@ numbers[11] = [[31],[7, 6],[False], [False], [], [[6, 6],[7, 7],[7, 5],[8, 6]]]
 numbers[12] = [[22],[7, 4],[False], [False], [], [[6, 4],[7, 3],[7, 5],[8, 4]]]
 numbers[13] = [[15],[7, 0],[True], [True], [], [[6, 0],[7, 1],[8, 0]]]
 
+coords = [[1, 8], [1, 4], [1, 2], [2, 6], [2, 0], [3, 4], [4, 7], [4, 1], [5, 4], [6, 8], [6, 2], [7, 6], [7, 4], [7, 0]]
+
 #base 4 counting system to keep track of each hooks rotation
 def base_10_to_4(denary):
     base_four = ""
@@ -57,7 +59,10 @@ def get_every_square(base, rotation, length): #finds the coordinate of every squ
     every_square = []
     if rotation == "0":
         for x in range(0, length, 1):
-            every_square.append([base[0]+x, base[1]])
+            if x == 0:
+                pass
+            else:
+                every_square.append([base[0]+x, base[1]])
         for y in range(length):
             every_square.append([base[0], base[1]+y])
     elif rotation == "1":
@@ -102,70 +107,82 @@ def convert_to_list_list(List):
     return new
             
 
-def check(every_square, value, poo):    #
-    clashing_values = []
-    for i in range(14): #finds all the values that could have a number in the hook
-        affected_values = numbers[i][5][:]
-        for item in affected_values:
-            if item in every_square: #not working
-                clashing_values.append(i)
-    clashing_values = convert_to_list_list(clashing_values)
-    #print(clashing_values)
-    #convert clashing numbers into lists 
-    for number in clashing_values:
-        save = []
-        partitions = numbers[number[0]][4][:]
-        #print(partitions)
-        for x in range (len(partitions)):
-            partition = partitions[x][:]
-            #can fit
-            #print(numbers[number][0], partitions)
-            if number[1] == 1:
-                if value in partition:
-                    save.append(partition)
-                elif partition[-1] in ["1", "2", "3"]:
-                    save.append(partition)
-                    temp = numbers[number[0]]
-                    temp[4][x][-1] = str(int(temp[4][x][-1])-1)
-                    numbers[number[0]] = temp
-            elif number[1] == 2:
-                if partition.count(value) == 2:
-                    save.append(partition)
-                elif partition.count(value) == 1 and partition[-1] in ["1", "2", "3"]:
-                    save.append(partition)
-                    temp = numbers[number[0]]
-                    temp[4][x][-1] = str(int(temp[4][x][-1])-1)
-                    numbers[number[0]] = temp
-                elif partition[-1] in ["2", "3"]:
-                    save.append(partition)
-                    temp = numbers[number[0]]
-                    temp[4][x][-1] = str(int(temp[4][x][-1])-2)
-                    numbers[number[0]] = temp
-        for i in range(len(save)):
-            save[i].pop()
-            save[i].append("0")
-        remove = end_partitions[number[0]][:]
-        #print(numbers[number][0], remove)
-        #print("-------------")
-        for item in save:
-            try:
-                remove.remove(item)
-            except:
-                pass #working
-        #print(numbers[number][0], remove)
-        #print("-------------")
-        #print(holder)
-        for item in remove:
-            end_partitions[number[0]].remove(item)
-        #print(number, end_partitions[number])
-        #print("---------")
-    #print("--------------------------------------------------------------")
+def check(every_square, value, poo):#
+    spaces = every_square[:]
+    for item in coords:
+        try:
+            spaces.remove(item)
+        except:
+            pass
+    print(len(spaces), value)
+    if len(spaces) >= value:
+        clashing_values = []
+        for i in range(14): #finds all the values that could have a number in the hook
+            affected_values = numbers[i][5][:]
+            for item in affected_values:
+                if item in every_square: #not working
+                    clashing_values.append(i)
+        clashing_values = convert_to_list_list(clashing_values)
+        #print(clashing_values)
+        #convert clashing numbers into lists 
+        for number in clashing_values:
+            save = []
+            partitions = numbers[number[0]][4][:]
+            #print(partitions)
+            for x in range (len(partitions)):
+                partition = partitions[x][:]
+                #can fit
+                #print(numbers[number][0], partitions)
+                if number[1] == 1:
+                    if value in partition:
+                        save.append(partition)
+                    elif partition[-1] in ["1", "2", "3"]:
+                        save.append(partition)
+                        temp = numbers[number[0]]
+                        temp[4][x][-1] = str(int(temp[4][x][-1])-1)
+                        numbers[number[0]] = temp
+                elif number[1] == 2:
+                    if partition.count(value) == 2:
+                        save.append(partition)
+                    elif partition.count(value) == 1 and partition[-1] in ["1", "2", "3"]:
+                        save.append(partition)
+                        temp = numbers[number[0]]
+                        temp[4][x][-1] = str(int(temp[4][x][-1])-1)
+                        numbers[number[0]] = temp
+                    elif partition[-1] in ["2", "3"]:
+                        save.append(partition)
+                        temp = numbers[number[0]]
+                        temp[4][x][-1] = str(int(temp[4][x][-1])-2)
+                        numbers[number[0]] = temp
+            for i in range(len(save)):
+                save[i].pop()
+                save[i].append("0")
+            remove = end_partitions[number[0]][:]
+            #print(numbers[number][0], remove)
+            #print("-------------")
+            for item in save:
+                try:
+                    remove.remove(item)
+                except:
+                    pass #working
+            #print(numbers[number][0], remove)
+            #print("-------------")
+            #print(holder)
+            for item in remove:
+                end_partitions[number[0]].remove(item)
+            #print(number, end_partitions[number])
+            #print("---------")
+        #print("--------------------------------------------------------------")
+        return True
+    else:
+        return False
                                     
 def to_be_or_not_to_be():
     for i in range(14):
         if end_partitions[i] == []:
             return False
     return True
+
 
 def reset():
     #numbers[i][4] = (partition(numbers[i][0], numbers[i][3], True))
@@ -230,8 +247,8 @@ class nine():
         self.base = get_base(self.rotation, current_grid) #the coords of the corner of the hook
         self.current_grid = constrict(self.rotation, current_grid)
         self.every_square = get_every_square(self.base, self.rotation, self.length)
-        check(self.every_square, self.value, self.length)
-        if not Break():
+        self.Continue = check(self.every_square, self.value, self.length)
+        if not Break() and self.Continue:
             eight(self.current_grid)
 
 class eight():
@@ -242,8 +259,8 @@ class eight():
         self.base = get_base(self.rotation, current_grid) #the coords of the corner of the hook
         self.current_grid = constrict(self.rotation, current_grid)
         self.every_square = get_every_square(self.base, self.rotation, self.length)
-        check(self.every_square, self.value, self.length)
-        if not Break():
+        self.Continue = check(self.every_square, self.value, self.length)
+        if not Break() and self.Continue:
             seven(self.current_grid)
 
 class seven():
@@ -254,8 +271,8 @@ class seven():
         self.base = get_base(self.rotation, current_grid) #the coords of the corner of the hook
         self.current_grid = constrict(self.rotation, current_grid)
         self.every_square = get_every_square(self.base, self.rotation, self.length)
-        check(self.every_square, self.value, self.length)
-        if not Break():
+        self.Continue = check(self.every_square, self.value, self.length)
+        if not Break() and self.Continue:
             six(self.current_grid)
 
 class six():
@@ -266,8 +283,8 @@ class six():
         self.base = get_base(self.rotation, current_grid) #the coords of the corner of the hook
         self.current_grid = constrict(self.rotation, current_grid)
         self.every_square = get_every_square(self.base, self.rotation, self.length)
-        check(self.every_square, self.value, self.length)
-        if not Break():
+        self.Continue = check(self.every_square, self.value, self.length)
+        if not Break() and self.Continue:
             five(self.current_grid)
 
 class five():
@@ -278,8 +295,8 @@ class five():
         self.base = get_base(self.rotation, current_grid) #the coords of the corner of the hook
         self.current_grid = constrict(self.rotation, current_grid)
         self.every_square = get_every_square(self.base, self.rotation, self.length)
-        check(self.every_square, self.value, self.length)
-        if not Break():
+        self.Continue = check(self.every_square, self.value, self.length)
+        if not Break() and self.Continue:
             four(self.current_grid)
 
 class four():
@@ -290,8 +307,8 @@ class four():
         self.base = get_base(self.rotation, current_grid) #the coords of the corner of the hook
         self.current_grid = constrict(self.rotation, current_grid)
         self.every_square = get_every_square(self.base, self.rotation, self.length)
-        check(self.every_square, self.value, self.length)
-        if not Break():
+        self.Continue = check(self.every_square, self.value, self.length)
+        if not Break() and self.Continue:
             three(self.current_grid)
 
 class three():
@@ -302,8 +319,8 @@ class three():
         self.base = get_base(self.rotation, current_grid) #the coords of the corner of the hook
         self.current_grid = constrict(self.rotation, current_grid)
         self.every_square = get_every_square(self.base, self.rotation, self.length)
-        check(self.every_square, self.value, self.length)
-        if not Break():
+        self.Continue = check(self.every_square, self.value, self.length)
+        if not Break() and self.Continue:
             two(self.current_grid)
 
 class two():
@@ -314,8 +331,8 @@ class two():
         self.base = get_base(self.rotation, current_grid) #the coords of the corner of the hook
         self.current_grid = constrict(self.rotation, current_grid)
         self.every_square = get_every_square(self.base, self.rotation, self.length)
-        check(self.every_square, self.value, self.length)
-        if not Break():
+        self.Continue = check(self.every_square, self.value, self.length)
+        if not Break() and self.Continue:
             one(self.current_grid)
 
 class one():
@@ -325,15 +342,20 @@ class one():
         self.value = 1
         self.base = get_base(self.rotation, current_grid)
         self.every_square = [self.base]
-        check(self.every_square, self.value, self.length)
+        self.Continue = check(self.every_square, self.value, self.length)
         #for x in range(14):
             #print(end_partitions[x])
-        if to_be_or_not_to_be():
+        if to_be_or_not_to_be() and self.Continue:
             print(rotation_values, hook_values)
             exit()
 
-for x in range(0, 65536, 1):
-#for x in range(65536, -1, -1): #rearange list for each order (!)
+for x in range(0, 10001, 1):
+#for x in range(10000, 20001, 1):
+#for x in range(20000, 30001, 1):
+#for x in range(30000, 40001, 1):
+#for x in range(40000, 50001, 1):
+#for x in range(50000, 60001, 1):
+#for x in range(60000, 65537, 1):
     print(x)
     for a in range(3, 10, 1):
         for b in range(3, 10, 1):
@@ -353,9 +375,9 @@ for x in range(0, 65536, 1):
                                                         base4 = base_10_to_4(x)
                                                         rotation_values = [base4[7], base4[6], base4[5], base4[4], base4[3], base4[2], base4[1], base4[0]]
                                                         nine([[0, 8], [0, 8]])
-    
+   
 
 #reset()
-#hook_values = [9, 7, 8, 6, 5, 4, 3]
-#rotation_values = ['2', '2', '3', '0', '1', '2', '0', '0']
+#hook_values = [9, 8, 7, 6, 5, 4, 3]
+#rotation_values = ['0', '0', '0', '0', '0', '0', '0', '0']
 #nine([[0, 8], [0, 8]])

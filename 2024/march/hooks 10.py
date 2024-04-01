@@ -1,6 +1,3 @@
-from numba import jit
-
-
 numbers = {}
 numbers[0] = [[18],[1, 8],[True], [True], [], [[0, 8],[1, 7],[2, 8]]] #value, coord, absolute?,bordering?, list, affected squares, possible partitions
 numbers[1] = [[5],[1, 4],[False], [False], [], [[0, 4],[1, 3],[1, 5],[2, 4]]]
@@ -228,8 +225,8 @@ class hooks():
         self.value = hook_values[0] #from 3 ---> 9
         self.base = get_base(self.rotation, current_grid) #the coords of the corner of the hook
         self.current_grid = constrict(self.rotation, current_grid) #makes the grid into the smaller square left after placing the hook on the outskirts
-        self.every_square = get_every_square(self.base, self.rotation) #finds the coords of every square in the hook
-        self.Continue = check(self.every_square, self.value, self.length)#removes the impossible partitions from end_partitions
+        self.every_square = get_every_square(self.base, self.rotation, self.length) #finds the coords of every square in the hook
+        self.Continue = check(self.every_square, self.value)#removes the impossible partitions from end_partitions
         if not Break() and self.Continue:#if this iteration isnt possible moves on without calculating the rest of the hooks
             self.eight(self.current_grid)#calls the next hook
 
@@ -239,8 +236,8 @@ class hooks():
         self.value = hook_values[1] 
         self.base = get_base(self.rotation, current_grid) 
         self.current_grid = constrict(self.rotation, current_grid)
-        self.every_square = get_every_square(self.base, self.rotation)
-        self.Continue = check(self.every_square, self.value, self.length)
+        self.every_square = get_every_square(self.base, self.rotation, self.length)
+        self.Continue = check(self.every_square, self.value)
         if not Break() and self.Continue:
             self.seven(self.current_grid)
 
@@ -250,8 +247,8 @@ class hooks():
         self.value = hook_values[2] 
         self.base = get_base(self.rotation, current_grid) 
         self.current_grid = constrict(self.rotation, current_grid)
-        self.every_square = get_every_square(self.base, self.rotation)
-        self.Continue = check(self.every_square, self.value, self.length)
+        self.every_square = get_every_square(self.base, self.rotation, self.length)
+        self.Continue = check(self.every_square, self.value)
         if not Break() and self.Continue:
             self.six(self.current_grid)
 
@@ -261,8 +258,8 @@ class hooks():
         self.value = hook_values[3] 
         self.base = get_base(self.rotation, current_grid) 
         self.current_grid = constrict(self.rotation, current_grid)
-        self.every_square = get_every_square(self.base, self.rotation)
-        self.Continue = check(self.every_square, self.value, self.length)
+        self.every_square = get_every_square(self.base, self.rotation, self.length)
+        self.Continue = check(self.every_square, self.value)
         if not Break() and self.Continue:
             self.five(self.current_grid)
 
@@ -272,8 +269,8 @@ class hooks():
         self.value = hook_values[4] 
         self.base = get_base(self.rotation, current_grid) 
         self.current_grid = constrict(self.rotation, current_grid)
-        self.every_square = get_every_square(self.base, self.rotation)
-        self.Continue = check(self.every_square, self.value, self.length)
+        self.every_square = get_every_square(self.base, self.rotation, self.length)
+        self.Continue = check(self.every_square, self.value)
         if not Break() and self.Continue:
             self.four(self.current_grid)
 
@@ -283,8 +280,8 @@ class hooks():
         self.value = hook_values[5] 
         self.base = get_base(self.rotation, current_grid) 
         self.current_grid = constrict(self.rotation, current_grid)
-        self.every_square = get_every_square(self.base, self.rotation)
-        self.Continue = check(self.every_square, self.value, self.length)
+        self.every_square = get_every_square(self.base, self.rotation, self.length)
+        self.Continue = check(self.every_square, self.value)
         if not Break() and self.Continue:
             self.three(self.current_grid)
 
@@ -294,8 +291,8 @@ class hooks():
         self.value = hook_values[6] 
         self.base = get_base(self.rotation, current_grid) 
         self.current_grid = constrict(self.rotation, current_grid)
-        self.every_square = get_every_square(self.base, self.rotation)
-        self.Continue = check(self.every_square, self.value, self.length)
+        self.every_square = get_every_square(self.base, self.rotation, self.length)
+        self.Continue = check(self.every_square, self.value)
         if not Break() and self.Continue:
             self.two(self.current_grid)
 
@@ -305,8 +302,8 @@ class hooks():
         self.value = 2 
         self.base = get_base(self.rotation, current_grid) 
         self.current_grid = constrict(self.rotation, current_grid)
-        self.every_square = get_every_square(self.base, self.rotation)
-        self.Continue = check(self.every_square, self.value, self.length)
+        self.every_square = get_every_square(self.base, self.rotation, self.length)
+        self.Continue = check(self.every_square, self.value)
         if not Break() and self.Continue:
             self.one(self.current_grid)
 
